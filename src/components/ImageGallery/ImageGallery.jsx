@@ -19,6 +19,7 @@ class ImageGallery extends Component {
       panding: false,
       showModal: false,
       activeImgUrl: "",
+      message: "",
     };
   }
 
@@ -46,14 +47,19 @@ class ImageGallery extends Component {
 
       API.getImages(params)
         .then(({ data }) => {
-          this.setState((state) => ({
-            pending: false,
-            images: searchChanged ? [...data.hits] : [...state.images, ...data.hits],
-          }));
+          if (data?.hits?.length !== 0) {
+            this.setState((state) => ({
+              pending: false,
+              images: searchChanged ? [...data.hits] : [...state.images, ...data.hits],
+              message: "",
+            }));
+          } else {
+            this.setState({ pending: false, images: [], message: "Photos not found!" });
+          }
         })
         .catch((error) => {
           console.log(error);
-          this.setState({ pending: false });
+          this.setState({ pending: false, message: error.message });
         });
     }
   }
@@ -70,13 +76,13 @@ class ImageGallery extends Component {
   };
 
   render() {
-    const { images, pending, showModal, activeImgUrl } = this.state;
+    const { images, pending, showModal, activeImgUrl, message } = this.state;
 
     return (
-      <div>
-        <ul className={styles.Gallery}>
-          {images.length !== 0 &&
-            images.map((image, i) => {
+      <div className={styles.Gallery}>
+        {images.length !== 0 && (
+          <ul className={styles.GalleryList}>
+            {images.map((image, i) => {
               const { id, webformatURL, largeImageURL } = image;
               return (
                 <ImageGalleryItem
@@ -87,7 +93,9 @@ class ImageGallery extends Component {
                 />
               );
             })}
-        </ul>
+          </ul>
+        )}
+        {message && <p className={styles.Message}>{message}</p>}
         {pending && <Loader />}
         {images.length !== 0 && <Button onLoadHandler={this.onLoadHandler} />}
         {showModal && (

@@ -23,8 +23,10 @@ class Modal extends Component {
 
   render() {
     return createPortal(
-      <div className={styles.ModalBackdrop}>
-        <div className={styles.ModalContent}>{this.props.children}</div>
+      <div className={styles.ModalBackdrop} onClick={this.props.closeModal}>
+        <div className={styles.ModalContent} onClick={(e) => e.stopPropagation()}>
+          {this.props.children}
+        </div>
       </div>,
       modalRoot
     );

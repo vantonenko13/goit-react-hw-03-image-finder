@@ -17,6 +17,7 @@ class App extends Component {
     this.state = {
       searchValue: "",
       images: [],
+      total: 0,
       page: 1,
       pending: false,
       showModal: false,
@@ -54,6 +55,7 @@ class App extends Component {
               pending: false,
               images: searchChanged ? [...data.hits] : [...state.images, ...data.hits],
               message: "",
+              total: data.totalHits,
             }));
           } else {
             this.setState({ pending: false, message: "Nothing found for your request!" });
@@ -82,7 +84,7 @@ class App extends Component {
   };
 
   render() {
-    const { images, pending, showModal, activeImgUrl, message } = this.state;
+    const { images, pending, showModal, activeImgUrl, message, total } = this.state;
 
     return (
       <div className={styles.App}>
@@ -90,7 +92,9 @@ class App extends Component {
         <ImageGallery images={images} message={message} openPhoto={this.openModal} />
 
         {pending && <Loader />}
-        {images.length !== 0 && <Button onLoadHandler={this.onLoadHandler} />}
+        {images.length !== 0 && images.length < total && (
+          <Button onLoadHandler={this.onLoadHandler} />
+        )}
         {showModal && (
           <Modal closeModal={this.closeModal}>
             <img src={activeImgUrl} alt={this.props.searchParam} />
